@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  wled_fcsp_controller:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: wled
+    network_mode: host
+    container_name: wled_fcsp_controller
+    restart: always
+    environment:
+      - IP_ADDRESS=${IP_ADDRESS}
+      - FOOTBALL_API_KEY=${FOOTBALL_API_KEY}
+    command: python -m wled_fcsp_controller.wled_control --ip_address=${IP_ADDRESS} --football_api_key=${FOOTBALL_API_KEY}
