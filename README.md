@@ -17,6 +17,7 @@ Assuming you have a WLED LED strip (and you know the ip address), the code in th
 Assuming you have python installed (e.g. via miniconda)
 ```
 pip install -r requirements.txt
+python -m wled_fcsp_controller.apis.led_test --ip_address=<your_wled_ip_address_here>
 python -m wled_fcsp_controller.wled_control --ip_address=<your_wled_ip_address_here>
 ```
 
