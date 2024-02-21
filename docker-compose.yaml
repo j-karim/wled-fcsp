@@ -12,4 +12,4 @@ services:
     environment:
       - IP_ADDRESS=${IP_ADDRESS}
       - FOOTBALL_API_KEY=${FOOTBALL_API_KEY}
-    command: python -m wled_fcsp_controller.wled_control --ip_address=${IP_ADDRESS} --football_api_key=${FOOTBALL_API_KEY}
+    command: bash -c "python -m wled_fcsp_controller.apis.led_test --ip_address=${IP_ADDRESS} && python -m wled_fcsp_controller.wled_control --ip_address=${IP_ADDRESS}"

@@ -94,10 +94,3 @@ class WLEDApi:
 
 
 
-if __name__ == '__main__':
-    request_helper = WLEDApi('192.168.2.123')
-
-    print(request_helper.get())
-    # request_helper.toggle_on_off()
-    request_helper.set_to_fcsp()
-
