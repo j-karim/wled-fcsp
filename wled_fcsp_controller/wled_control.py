@@ -28,12 +28,12 @@ def main(ip_address: str):
             logger.info('no Pauli game in sight, sleep for 5 days')
             time.sleep(24 * 60 * 60 * 5)
 
-        if next_pauli_match_time.date() != datetime.today().date() or (next_pauli_match_time - datetime.now()).total_seconds() > 1800:
-            logger.info(f'Sleep until next Pauli game: {next_pauli_match_time}')
-            time.sleep((next_pauli_match_time - datetime.now()).total_seconds())
-            continue
+        # if next_pauli_match_time.date() != datetime.today().date() or (next_pauli_match_time > datetime.now() and (next_pauli_match_time - datetime.now()).total_seconds() > 1800):
+        #     logger.info(f'Sleep until next Pauli game: {next_pauli_match_time}')
+        #     time.sleep((next_pauli_match_time - datetime.now()).total_seconds())
+        #     continue
 
-        time.sleep(15)
+        time.sleep(2)
         updated_score = spiegel_crawler.get_current_fcsp_score()
         if updated_score is None:
             current_score = Score(0, 0)

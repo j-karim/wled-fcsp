@@ -26,7 +26,7 @@ class SpiegelCrawler:
         soup = BeautifulSoup(req.text, features="html.parser")
 
         match_results = soup.find_all("div", {'class': "match-result match-result-0"})
-        match_results = [x.contents[0] for x in match_results if isinstance(x.contents[0], Tag) and self._filter_fcsp_live_matches(x.contents[0])]
+        match_results = [x.contents[0] for x in match_results if isinstance(x.contents[0], Tag) and (self._filter_fcsp_live_matches(x.contents[0]) or self._filter_fcsp_upcoming_matches(x.contents[0]))]
         if len(match_results) > 0:
             match_result = match_results[0]
 
@@ -54,15 +54,16 @@ class SpiegelCrawler:
     @staticmethod
     def _tag_to_score(match_result: Tag):
         score = match_result.string
-        score = (int(score.split(':')[0]), int(score.split(':')[1]))
 
-        assert match_result.has_attr('href') and 'liveticker' in match_result.attrs['href']
+        score = (score.split(':')[0], score.split(':')[1])
+        score = (int(score[0]), int(score[1])) if score != ('-', '-') else (0, 0)
+
+        assert match_result.has_attr('href') and ('liveticker' in match_result.attrs['href'] or 'bilanz' in match_result.attrs['href'])
         link = match_result.attrs['href']
         match = link.split('/')[-3]
         home, away = match.split('_')
         is_home_game = 'pauli' in home
         return Score(*score) if is_home_game else Score(*(score[1], score[0]))
-
 
 
 if __name__ == '__main__':
