@@ -28,19 +28,22 @@ def main(ip_address: str):
             logger.info('no Pauli game in sight, sleep for 5 days')
             time.sleep(24 * 60 * 60 * 5)
 
-        # if next_pauli_match_time.date() != datetime.today().date() or (next_pauli_match_time > datetime.now() and (next_pauli_match_time - datetime.now()).total_seconds() > 1800):
-        #     logger.info(f'Sleep until next Pauli game: {next_pauli_match_time}')
-        #     time.sleep((next_pauli_match_time - datetime.now()).total_seconds())
-        #     continue
+        if next_pauli_match_time.date() != datetime.today().date() or (next_pauli_match_time > datetime.now() and (next_pauli_match_time - datetime.now()).total_seconds() > 1800):
+            logger.info(f'Sleep until next Pauli match: {next_pauli_match_time}')
+            time.sleep((next_pauli_match_time - datetime.now()).total_seconds())
+            logger.info(f'Sleep is over, match starts: {next_pauli_match_time}')
+            continue
 
-        time.sleep(2)
+        time.sleep(5)
         updated_score = spiegel_crawler.get_current_fcsp_score()
+        logger.debug(f'Updated score: {updated_score}')
         if updated_score is None:
             current_score = Score(0, 0)
             time.sleep(90)
             continue
 
         if updated_score.fcsp > current_score.fcsp:
+            logger.info(f'Pauli scored! New score: {updated_score}')
             wled_api.set_to_fcsp(10)
         current_score = updated_score
 

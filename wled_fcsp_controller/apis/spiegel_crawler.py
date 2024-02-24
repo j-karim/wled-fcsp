@@ -6,6 +6,7 @@ from wled_fcsp_controller.Score import Score
 class SpiegelCrawler:
     def __init__(self):
         self.endpoint = "https://sportdaten.spiegel.de"
+        self.team_name = 'pauli'
 
     def next_pauli_match(self):
         for i in range(14):
@@ -30,7 +31,7 @@ class SpiegelCrawler:
         if len(match_results) > 0:
             match_result = match_results[0]
 
-            score = self._tag_to_score(match_result)
+            score = self.tag2score(match_result)
             return score
         return None
 
@@ -40,30 +41,32 @@ class SpiegelCrawler:
         match_start_time = datetime.strptime(f'{date_obj}_{start_time}', '%Y-%m-%d_%H:%M')
         return match_start_time
 
-    @staticmethod
-    def _filter_fcsp_live_matches(match_result: Tag):
-
-        is_fcsp_live = match_result.has_attr('href') and 'liveticker' in match_result.attrs['href'] and 'pauli' in match_result.attrs['href']
+    def _filter_fcsp_live_matches(self, match_result: Tag):
+        is_fcsp_live = match_result.has_attr('href') and 'liveticker' in match_result.attrs['href'] and self.team_name in match_result.attrs['href']
         return is_fcsp_live
 
-    @staticmethod
-    def _filter_fcsp_upcoming_matches(match_result: Tag):
-        is_fcsp_live = match_result.has_attr('href') and 'bilanz' in match_result.attrs['href'] and 'pauli' in match_result.attrs['href']
-        return is_fcsp_live
+    def _filter_fcsp_upcoming_matches(self, match_result: Tag):
+        is_fcsp = match_result.has_attr('href') and 'bilanz' in match_result.attrs['href'] and self.team_name in match_result.attrs['href']
+        return is_fcsp
 
-    @staticmethod
-    def _tag_to_score(match_result: Tag):
-        score = match_result.string
-
+    def _parse_score_str_and_teams(self, score: str, teams: str) -> Score:
+        score = score.replace(' ', '')
         score = (score.split(':')[0], score.split(':')[1])
         score = (int(score[0]), int(score[1])) if score != ('-', '-') else (0, 0)
 
-        assert match_result.has_attr('href') and ('liveticker' in match_result.attrs['href'] or 'bilanz' in match_result.attrs['href'])
-        link = match_result.attrs['href']
-        match = link.split('/')[-3]
-        home, away = match.split('_')
-        is_home_game = 'pauli' in home
+        home, away = teams.split('_')
+        is_home_game = self.team_name in home
         return Score(*score) if is_home_game else Score(*(score[1], score[0]))
+
+    def tag2score(self, match_result: Tag) -> Score:
+        assert 'href' in match_result.attrs
+
+        req = requests.get(f'{self.endpoint}{match_result.attrs["href"]}')
+        soup = BeautifulSoup(req.text, features="html.parser")
+        score_tag = soup.findAll("div", {'class': "match-result match-result-0"})[0]
+        score_str = score_tag.string
+        teams = match_result.attrs['href'].split('/')[-3]
+        return self._parse_score_str_and_teams(score_str, teams)
 
 
 if __name__ == '__main__':
