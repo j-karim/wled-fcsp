@@ -2,7 +2,7 @@ import time
 import logging
 logging.basicConfig()
 logger = logging.getLogger('wled_control')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from datetime import datetime
 
@@ -14,7 +14,7 @@ from wled_fcsp_controller.apis.wled_api import WLEDApi
 
 
 @click.command()
-@click.option('--ip_address', default='192.168.2.123', help='IP address of wled.')
+@click.option('--ip_address', default='192.168.2.122', help='IP address of wled.')
 def main(ip_address: str):
 
     wled_api = WLEDApi(ip_address)
@@ -44,7 +44,14 @@ def main(ip_address: str):
 
         if updated_score.fcsp > current_score.fcsp:
             logger.info(f'Pauli scored! New score: {updated_score}')
-            wled_api.set_to_fcsp(10)
+            wled_api.set_to_fcsp(30)
+            time.sleep(1)
+
+        if updated_score.other > current_score.other:
+            logger.info(f'Pauli conceded a goal! New score: {updated_score}')
+            wled_api.toggle_on_off(10)
+            time.sleep(1)
+
         current_score = updated_score
 
 

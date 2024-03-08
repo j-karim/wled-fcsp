@@ -25,12 +25,15 @@ class WLEDApi:
         """
         requests.post(self.json_state_endpoint, json.dumps(state_dictionary))
 
-    def toggle_on_off(self) -> None:
+    def toggle_on_off(self, n_seconds: int) -> None:
         """
         Toggles the led strip
         """
         json_content = {"on": "t", "v": "true"}
         self.post_state(json_content)
+        time.sleep(n_seconds)
+        self.post_state(json_content)
+
 
     def set_to_fcsp(self, n_seconds: int = 10) -> None:
         """
